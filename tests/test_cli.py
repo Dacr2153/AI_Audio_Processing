@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from audio_restoration.cli import _build_config, build_argument_parser, main
 from audio_restoration.config import PipelineConfig
 
@@ -77,6 +79,64 @@ def test_main_single_file_roundtrip(tmp_path, wav_file):
     assert os.path.isfile(out)
     audio, _sr = sf.read(out)
     assert audio.ndim == 2  # stereo preserved
+
+
+def test_main_single_file_metrics_csv(tmp_path, wav_file):
+    out = str(tmp_path / "out.wav")
+    csv_path = str(tmp_path / "summary.csv")
+    rc = main(
+        [
+            "-i",
+            wav_file,
+            "-o",
+            out,
+            "--denoise-method",
+            "wavelet",
+            "--no-plot",
+            "--no-metrics",
+            "--no-lufs",
+            "--metrics-csv",
+            csv_path,
+        ]
+    )
+    assert rc == 0
+    assert Path(csv_path).is_file()
+    content = Path(csv_path).read_text()
+    assert "out.wav" in content
+    assert "restored_rms_db" in content
+
+
+def test_main_batch_metrics_csv(tmp_path, wav_file):
+    import shutil
+
+    batch_dir = tmp_path / "batch"
+    batch_dir.mkdir()
+    shutil.copy(wav_file, batch_dir / "track1.wav")
+    shutil.copy(wav_file, batch_dir / "track2.wav")
+
+    out_dir = tmp_path / "out"
+    csv_path = str(tmp_path / "batch.csv")
+    rc = main(
+        [
+            "--batch",
+            str(batch_dir),
+            "--output-dir",
+            str(out_dir),
+            "--denoise-method",
+            "wavelet",
+            "--no-plot",
+            "--no-metrics",
+            "--no-lufs",
+            "--metrics-csv",
+            csv_path,
+        ]
+    )
+    assert rc == 0
+    assert (out_dir / "track1.wav").is_file()
+    assert (out_dir / "track2.wav").is_file()
+    assert Path(csv_path).is_file()
+    content = Path(csv_path).read_text()
+    assert content.count("track") >= 2
 
 
 def test_main_missing_input_returns_1(tmp_path):

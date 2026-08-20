@@ -729,13 +729,18 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     try:
-        pipeline.restore(args.input, args.output)
+        report = pipeline.restore(args.input, args.output)
     except FileNotFoundError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
     except Exception:
         log.exception("Pipeline failed")
         return 2
+
+    if args.metrics_summary_csv:
+        _write_batch_summary(
+            args.metrics_summary_csv, [{"file": args.output, **report}]
+        )
 
     return 0
 

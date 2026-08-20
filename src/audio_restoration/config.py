@@ -205,7 +205,6 @@ class SourceSeparationConfig:
     enabled: bool = False
     model: str = "htdemucs_ft"
     device: str = "auto"
-    reconstruct_from_stems: bool = True
     stem_denoise: bool = False
     """Denoise each stem independently before remixing."""
 
@@ -248,9 +247,6 @@ class ReportConfig:
     save_comparison_plot: bool = True
     metrics_summary_csv: str | None = None
     """Write a batched per-file metrics summary CSV to this path."""
-
-    report_json: str | None = None
-    """Write the individual metrics report as JSON to this path."""
 
 
 # ---------------------------------------------------------------------------
@@ -315,7 +311,6 @@ _LEGACY_FIELD_MAP: dict[str, tuple[str, str]] = {
     "enable_source_separation": ("separate", "enabled"),
     "demucs_model": ("separate", "model"),
     "demucs_device": ("separate", "device"),
-    "reconstruct_from_stems": ("separate", "reconstruct_from_stems"),
     "stem_denoise": ("separate", "stem_denoise"),
     # Super-resolution
     "enable_super_resolution": ("sr", "enabled"),
@@ -334,7 +329,6 @@ _LEGACY_FIELD_MAP: dict[str, tuple[str, str]] = {
     "save_comparison_plot": ("report", "save_comparison_plot"),
     "print_metrics": ("report", "print_metrics"),
     "metrics_summary_csv": ("report", "metrics_summary_csv"),
-    "report_json": ("report", "report_json"),
 }
 
 #: Rough constant used to detect "still at default" for genre application.
