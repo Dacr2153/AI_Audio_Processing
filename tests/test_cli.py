@@ -235,3 +235,54 @@ def test_main_single_file_unsupported_output_format(tmp_path, wav_file):
     out = str(tmp_path / "out.xyz")
     rc = main(["-i", wav_file, "-o", out])
     assert rc == 1
+
+
+def test_main_batch_parallel_workers(tmp_path, wav_file):
+    import shutil
+
+    batch_dir = tmp_path / "batch"
+    batch_dir.mkdir()
+    for i in range(3):
+        shutil.copy(wav_file, batch_dir / f"track{i}.wav")
+
+    rc = main(
+        [
+            "--batch",
+            str(batch_dir),
+            "--workers",
+            "3",
+            "--denoise-method",
+            "wavelet",
+            "--no-plot",
+            "--no-metrics",
+            "--no-lufs",
+        ]
+    )
+    assert rc == 0
+    assert (batch_dir / "restored" / "track0.wav").is_file()
+    assert (batch_dir / "restored" / "track2.wav").is_file()
+
+
+def test_main_batch_parallel_failure(tmp_path, wav_file):
+    import shutil
+
+    batch_dir = tmp_path / "batch"
+    batch_dir.mkdir()
+    shutil.copy(wav_file, batch_dir / "good.wav")
+    (batch_dir / "empty.WAV").write_bytes(b"")
+    (batch_dir / "corrupt.mp3").write_bytes(b"garbage")
+
+    rc = main(
+        [
+            "--batch",
+            str(batch_dir),
+            "--workers",
+            "2",
+            "--denoise-method",
+            "wavelet",
+            "--no-plot",
+            "--no-metrics",
+            "--no-lufs",
+        ]
+    )
+    assert rc == 2  # some files fail, some succeed

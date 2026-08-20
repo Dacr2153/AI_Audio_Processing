@@ -14,6 +14,7 @@ import argparse
 import logging
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
 
 from . import __version__
 from .config import GENRE_PRESETS, PipelineConfig
@@ -101,6 +102,13 @@ def build_argument_parser() -> argparse.ArgumentParser:
         default="",
         metavar="SUFFIX",
         help="Suffix appended to each output filename stem (e.g. '_restored').",
+    )
+    batch_group.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        metavar="N",
+        help="Number of files to process in parallel (threads). Default: 1 (serial).",
     )
 
     # --- Genre preset ---
@@ -367,16 +375,51 @@ def build_argument_parser() -> argparse.ArgumentParser:
         dest="enable_multiband",
         help="Enable 3-band multiband compressor.",
     )
-    for flag, dest, default in [
-        ("--mb-low-threshold", "multiband_low_threshold_db", -20.0),
-        ("--mb-low-ratio", "multiband_low_ratio", 2.5),
-        ("--mb-low-makeup", "multiband_low_makeup_db", 1.5),
-        ("--mb-mid-threshold", "multiband_mid_threshold_db", -18.0),
-        ("--mb-mid-ratio", "multiband_mid_ratio", 3.0),
-        ("--mb-mid-makeup", "multiband_mid_makeup_db", 1.0),
-        ("--mb-high-threshold", "multiband_high_threshold_db", -16.0),
-        ("--mb-high-ratio", "multiband_high_ratio", 2.0),
-        ("--mb-high-makeup", "multiband_high_makeup_db", 0.5),
+    for flag, dest, default, help_text in [
+        (
+            "--mb-low-threshold",
+            "multiband_low_threshold_db",
+            -20.0,
+            "Low band compressor threshold (dB).",
+        ),
+        ("--mb-low-ratio", "multiband_low_ratio", 2.5, "Low band compression ratio."),
+        (
+            "--mb-low-makeup",
+            "multiband_low_makeup_db",
+            1.5,
+            "Low band makeup gain (dB).",
+        ),
+        (
+            "--mb-mid-threshold",
+            "multiband_mid_threshold_db",
+            -18.0,
+            "Mid band compressor threshold (dB).",
+        ),
+        ("--mb-mid-ratio", "multiband_mid_ratio", 3.0, "Mid band compression ratio."),
+        (
+            "--mb-mid-makeup",
+            "multiband_mid_makeup_db",
+            1.0,
+            "Mid band makeup gain (dB).",
+        ),
+        (
+            "--mb-high-threshold",
+            "multiband_high_threshold_db",
+            -16.0,
+            "High band compressor threshold (dB).",
+        ),
+        (
+            "--mb-high-ratio",
+            "multiband_high_ratio",
+            2.0,
+            "High band compression ratio.",
+        ),
+        (
+            "--mb-high-makeup",
+            "multiband_high_makeup_db",
+            0.5,
+            "High band makeup gain (dB).",
+        ),
     ]:
         mb_group.add_argument(
             flag,
@@ -384,7 +427,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
             default=default,
             metavar="DB" if "threshold" in flag or "makeup" in flag else "R",
             dest=dest,
-            help=f"(default: {default})",
+            help=f"{help_text} (default: {default})",
         )
 
     # --- M/S stereo processing ---
@@ -678,30 +721,50 @@ def main(argv: list[str] | None = None) -> int:
 
         log.info("Batch mode: %d files found in %s", len(input_files), batch_folder)
         log.info("Output folder: %s  |  Extension: %s", out_dir, out_ext)
+        log.info("Workers: %d", args.workers)
 
-        summaries: list[dict] = []
-        ok, failed = 0, []
-        for idx, in_path in enumerate(input_files, 1):
+        def run_one(in_path: str) -> tuple[str | None, dict | None, str | None]:
             stem = os.path.splitext(os.path.basename(in_path))[0]
             out_path = os.path.join(out_dir, stem + args.output_suffix + out_ext)
             log.info(
-                "[%d/%d] %s  →  %s",
-                idx,
-                len(input_files),
+                "%s → %s",
                 os.path.basename(in_path),
                 os.path.basename(out_path),
             )
             try:
                 report = pipeline.restore(in_path, out_path)
-                summaries.append({"file": out_path, **report})
-                ok += 1
+                return out_path, report, None
             except Exception as exc:
                 log.error("  FAILED: %s", exc, exc_info=args.verbose)
-                failed.append((in_path, str(exc)))
+                return None, None, str(exc)
+
+        summaries: list[dict] = []
+        failed: list[tuple[str, str]] = []
+        workers = max(1, args.workers)
+
+        def handle_result(
+            in_path: str, out_path: str | None, report: dict | None, error: str | None
+        ) -> None:
+            if out_path is None:
+                failed.append((in_path, error or "unknown error"))
+            else:
+                assert report is not None
+                summaries.append({"file": out_path, **report})
+
+        if workers > 1:
+            with ThreadPoolExecutor(max_workers=workers) as pool:
+                for in_path, (out_path, report, error) in zip(
+                    input_files, pool.map(run_one, input_files)
+                ):
+                    handle_result(in_path, out_path, report, error)
+        else:
+            for in_path in input_files:
+                handle_result(in_path, *run_one(in_path))
 
         if summaries and args.metrics_summary_csv:
             _write_batch_summary(args.metrics_summary_csv, summaries)
 
+        ok = len(summaries)
         print(f"\nBatch complete: {ok}/{len(input_files)} succeeded.")
         if failed:
             print("Failed files:")

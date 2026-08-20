@@ -90,6 +90,12 @@ audio-restore --batch ./archives --output-dir ./restored --output-ext flac \
               --output-suffix _restored
 ```
 
+Speed up batch runs by processing several files in parallel (threads):
+
+```bash
+audio-restore --batch ./archives --workers 4 --output-dir ./restored
+```
+
 Lossy output (needs ffmpeg):
 
 ```bash
@@ -109,6 +115,14 @@ cfg = PipelineConfig(
 )
 pipeline = RestorationPipeline(cfg)
 pipeline.restore("input.wav", "output.flac")
+```
+
+A complete, self-contained runnable example (generates a synthetic noisy
+recording if you don't have one) lives in `examples/api_demo.py`:
+
+```bash
+python examples/api_demo.py                 # uses a generated demo input
+python examples/api_demo.py old.wav -o new.wav
 ```
 
 ---
