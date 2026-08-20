@@ -1,0 +1,127 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "audio-restoration"
+version = "2.0.0"
+description = "Professional-grade audio restoration toolkit combining classical DSP with modern neural models."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Audio Restoration Team" }]
+keywords = ["audio", "restoration", "dsp", "denoising", "declicking", "deepfilternet", "demucs"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Multimedia :: Sound/Audio :: Conversion",
+]
+
+# ---------------------------------------------------------------------------
+# Core audio & DSP stack (lightweight, CPU only).
+# ---------------------------------------------------------------------------
+dependencies = [
+    "librosa>=0.10.0",
+    "soundfile>=0.12.0",
+    "scipy>=1.10.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    "PyWavelets>=1.4.0",
+    "noisereduce>=3.0.0",
+    "pyloudnorm>=0.1.0",
+]
+
+[project.optional-dependencies]
+# Neural models — heavy, optional. Install on demand:
+#   pip install "audio-restoration[neural]"
+neural = [
+    "torch>=2.0.0",
+    "torchaudio>=2.0.0",
+    "deepfilternet>=0.5.6",
+    "demucs>=4.0.0",
+]
+# AudioSR super-resolution — requires Python <= 3.10.
+#   pip install "audio-restoration[audiosr]"
+audiosr = ["audiosr==0.0.7"]
+
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.3",
+    "mypy>=1.8",
+    "build>=1.0",
+    "pandas>=2.0",  # batch metrics summaries (optional at runtime)
+]
+
+[project.scripts]
+audio-restore = "audio_restoration.cli:main"
+
+[project.urls]
+Repository = "https://github.com/Dacr2153/AI_Audio_Processing"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+audio_restoration = ["py.typed"]
+
+# ---------------------------------------------------------------------------
+# Testing
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "slow: marks tests that take a long time to run (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests that exercise several modules",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["audio_restoration"]
+omit = ["*/tests/*", "*/__main__.py"]
+
+[tool.coverage.report]
+fail_under = 60
+show_missing = true
+skip_covered = true
+
+# ---------------------------------------------------------------------------
+# Linting
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+src = ["src", "tests"]
+exclude = ["venv_audio", ".agents"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = [
+    "E501",  # handled by formatter / line-length
+    "B008",  # argparse uses call-in-default which is idiomatic
+    "SIM108", # ternary simplification is marginal for readability
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402", "F401"]
+
+# ---------------------------------------------------------------------------
+# Type checking
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+files = ["src/audio_restoration"]

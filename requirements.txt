@@ -1,48 +1,19 @@
-# Audio Restoration Pipeline — Requirements
-# ==========================================
-# Install with: pip install -r requirements.txt
+# Audio Restoration — Requirements
+# =================================
+# This project uses pyproject.toml as the single source of truth for
+# dependencies (PEP 621). Do not add packages here; add them to
+# pyproject.toml under [project.dependencies] or [project.optional-dependencies].
 #
-# Or use the automated setup script: bash setup.sh
+# Install the package with its dependencies:
+#   pip install -e .
+# Include neural models (torch, deepfilternet, demucs):
+#   pip install -e ".[neural]"
+# Also install dev tooling (pytest, ruff, mypy, build):
+#   pip install -e ".[dev]"
+# AudioSR super-resolution (requires Python <= 3.10):
+#   pip install -e ".[audiosr]"
 #
-# Python >= 3.10 recommended (Python 3.14 supported for core packages;
-# some optional packages like audiosr require Python <= 3.10)
-
-# ─── Core audio & DSP ────────────────────────────────────────────────
-librosa>=0.10.0         # Audio loading, spectrograms, resampling, MFCCs
-soundfile>=0.12.0       # Reading/writing WAV/FLAC/OGG (replaces deprecated librosa.output.write_wav)
-scipy>=1.10.0           # Signal filtering (Butterworth, resampling, FFT)
-numpy>=1.24.0           # Numerical arrays
-matplotlib>=3.7.0       # Waveform and spectrogram visualization
-PyWavelets>=1.4.0       # Wavelet denoising (Daubechies-4, vinyl crackle removal)
-
-# ─── Noise reduction ─────────────────────────────────────────────────
-noisereduce>=3.0.0      # Stationary & adaptive spectral subtraction denoising
-
-# ─── Loudness normalization ───────────────────────────────────────────
-pyloudnorm>=0.1.0       # BS.1770-4 / EBU R128 integrated loudness (LUFS) measurement
-
-# ─── Neural models (require PyTorch) ─────────────────────────────────
-# CPU-only PyTorch (fast to install, no GPU required):
-#   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
-#
-# GPU (CUDA) PyTorch:
-#   pip install torch torchaudio
-torch>=2.0.0
-torchaudio>=2.0.0
-
-# DeepFilterNet — neural broadband denoiser (best quality)
-# Reduces hiss, hum, environmental noise at 48 kHz
-# Uses an RNN + attention architecture trained on DNS5 dataset
-deepfilternet>=0.5.6
-
-# Demucs v4 — neural source separation (vocals, drums, bass, other)
-# htdemucs_ft model: best quality, fine-tuned on MusDB-HQ
-demucs>=4.0.0
-
-# ─── Super-resolution (optional, requires Python <= 3.10) ────────────
-# AudioSR performs diffusion-based audio super-resolution to 48 kHz,
-# recovering high-frequency content lost in MP3 encoding or old recordings.
-# Install separately if using Python 3.10 or older:
-#   pip install audiosr==0.0.7
-#
-# audiosr==0.0.7
+# Or use the automated (idempotent) setup script:
+#   bash setup.sh            # CPU build
+#   bash setup.sh --gpu      # CUDA build
+#   bash setup.sh --dev      # + dev tools

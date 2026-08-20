@@ -1,0 +1,4 @@
+# ---------------------------------------------------------------------------
+# ruff config lives in pyproject.toml ([tool.ruff]).
+# This empty file exists so tools auto-detect the project root.
+# ---------------------------------------------------------------------------
