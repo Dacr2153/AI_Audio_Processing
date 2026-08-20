@@ -1,0 +1,41 @@
+# ─── Entornos virtuales ─────────────────────────────────────────────
+venv/
+venv_audio/
+.env/
+
+# ─── Caché de Python ─────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# ─── Datos de audio de trabajo (resultados de procesamiento) ────────
+Canciones/
+*.wav
+*.flac
+*.aiff
+*.mp3
+*.m4a
+*.ogg
+*.opus
+
+# ─── Reportes y gráficos generados ───────────────────────────────────
+*_comparison.png
+metrics_report*.txt
+*.log
+
+# ─── Scripts legacy excluidos del repositorio ────────────────────────
+AudioProcessor.py
+NoiseReducer.py
+AudioSynthesizer.py
+Main Function.py
+
+# ─── IDE / Editor ────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
