@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audio-restoration"
-version = "2.0.0"
 description = "Professional-grade audio restoration toolkit combining classical DSP with modern neural models."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = { file = "LICENSE" }
 authors = [{ name = "Audio Restoration Team" }]
 keywords = ["audio", "restoration", "dsp", "denoising", "declicking", "deepfilternet", "demucs"]
+dynamic = ["version"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -70,6 +70,9 @@ Repository = "https://github.com/Dacr2153/AI_Audio_Processing"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.dynamic]
+version = { attr = "audio_restoration._version.__version__" }
 
 [tool.setuptools.package-data]
 audio_restoration = ["py.typed"]

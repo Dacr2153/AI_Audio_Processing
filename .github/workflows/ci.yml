@@ -63,6 +63,36 @@ jobs:
       - name: Run check mode
         run: bash setup.sh --check
 
+  package_build:
+    name: Build package (wheel + sdist)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install build tooling
+        run: pip install build
+      - name: Build wheel and sdist
+        run: python -m build
+      - name: Inspect artifacts
+        run: |
+          python - <<'EOF'
+          import re, tarfile, zipfile, glob
+          version = re.search(r'__version__ = "([^"]+)"',
+                              open("src/audio_restoration/_version.py").read()).group(1)
+          sdist = glob.glob("dist/*.tar.gz")[0]
+          with tarfile.open(sdist) as t:
+              names = t.getnames()
+          assert any(n.endswith("LICENSE") for n in names), "LICENSE missing in sdist"
+          assert any(n.endswith("py.typed") for n in names), "py.typed missing in sdist"
+          wheel = glob.glob("dist/*.whl")[0]
+          with zipfile.ZipFile(wheel) as z:
+              wnames = z.namelist()
+          assert any(f"audio_restoration-{version}.dist-info" in n for n in wnames), "dist-info version mismatch"
+          assert any("_version.py" in n for n in wnames), "_version.py missing in wheel"
+          print(f"artifacts OK ({version}):", sdist, wheel)
+
   shellcheck:
     name: Shellcheck (setup.sh)
     runs-on: ubuntu-latest

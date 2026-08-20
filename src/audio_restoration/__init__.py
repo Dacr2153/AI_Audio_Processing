@@ -9,8 +9,7 @@ Public API::
 
 from __future__ import annotations
 
-__version__ = "2.0.0"
-
+from ._version import __version__
 from .config import (
     GENRE_PRESETS,
     DeclickConfig,
@@ -61,4 +60,5 @@ __all__ = [
     "UnsupportedFormatError",
     "ValidationError",
     "WowFlutterConfig",
+    "__version__",
 ]
