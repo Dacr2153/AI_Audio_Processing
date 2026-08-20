@@ -54,7 +54,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run setup.sh (CPU)
+      - name: Run setup.sh (core + dev, no neural)
+        run: bash setup.sh --skip-neural --dev
+      - name: Verify CLI entry point
+        run: |
+          source venv_audio/bin/activate
+          audio-restore --help
+      - name: Run check mode
         run: bash setup.sh --check
 
   shellcheck:

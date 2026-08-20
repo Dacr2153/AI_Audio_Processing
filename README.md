@@ -41,14 +41,17 @@ Python **>= 3.10** is required. Two options:
 ### 1. Automated setup script (recommended)
 
 ```bash
-bash setup.sh          # CPU PyTorch
-bash setup.sh --gpu    # CUDA PyTorch
-bash setup.sh --dev    # also install pytest/ruff/mypy/build
+bash setup.sh              # CPU PyTorch
+bash setup.sh --gpu        # CUDA PyTorch
+bash setup.sh --dev        # also install pytest/ruff/mypy/build
+bash setup.sh --skip-neural  # core DSP only (no PyTorch / neural models)
 ```
 
 The script creates `venv_audio/`, installs the package and its dependencies,
 and is **idempotent** — safe to re-run. Use `bash setup.sh --check` to see what
-is installed.
+is installed and whether the neural imports (`torch` / `demucs` /
+`deepfilternet`) resolve. If the neural stack can't be installed on your Python
+version, core DSP features keep working without it.
 
 ### 2. Manual
 
