@@ -53,9 +53,13 @@ neural = [
 #   pip install "audio-restoration[audiosr]"
 audiosr = ["audiosr==0.0.7"]
 
+# Interactive terminal UI (bilingual EN/ES) built with Textual.
+tui = ["textual>=0.90"]
+
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
+    "pytest-asyncio>=0.23",
     "ruff>=0.3",
     "mypy>=1.8",
     "build>=1.0",
@@ -64,6 +68,7 @@ dev = [
 
 [project.scripts]
 audio-restore = "audio_restoration.cli:main"
+audio-restore-tui = "audio_restoration.tui.__main__:run"
 
 [project.urls]
 Repository = "https://github.com/Dacr2153/AI_Audio_Processing"
@@ -83,6 +88,7 @@ audio_restoration = ["py.typed"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+asyncio_mode = "auto"
 markers = [
     "slow: marks tests that take a long time to run (deselect with '-m \"not slow\"')",
     "integration: marks integration tests that exercise several modules",

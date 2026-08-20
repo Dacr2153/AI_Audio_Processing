@@ -314,6 +314,7 @@ _LEGACY_FIELD_MAP: dict[str, tuple[str, str]] = {
     "stem_denoise": ("separate", "stem_denoise"),
     # Super-resolution
     "enable_super_resolution": ("sr", "enabled"),
+    "sr_target_sr": ("sr", "target_sr"),
     "super_resolution_device": ("sr", "device"),
     # Loudness
     "lufs_target": ("loudness", "target_lufs"),
