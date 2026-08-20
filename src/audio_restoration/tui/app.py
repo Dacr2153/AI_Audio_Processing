@@ -6,12 +6,14 @@ from typing import ClassVar
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import VerticalScroll
+from textual.containers import Vertical, VerticalScroll
 from textual.theme import Theme
-from textual.widgets import Footer, Static
+from textual.widgets import Footer
 
 from . import i18n
 from .components.sidebar import ScreenRequested, Sidebar
+from .screens import SCREEN_FACTORIES
+from .screens.base import TuiScreen
 from .state import TuiState
 
 _DARK_THEME = Theme(
@@ -82,18 +84,20 @@ class AudioRestorationTUI(App):
         super().__init__()
         self.state = state or TuiState()
         self._active: str = "home"
-
-    def on_mount(self) -> None:
-        self.register_theme(_DARK_THEME)
-        self.register_theme(_LIGHT_THEME)
-        self.theme = "audio-dark" if self.state.theme == "dark" else "audio-light"
+        self._screen: TuiScreen | None = None
 
     def compose(self) -> ComposeResult:
         self.screen.sub_title = self.SUB_TITLE
         yield Sidebar()
         with VerticalScroll(id="content"):
-            yield Static(self._welcome_text(), id="screen-placeholder")
+            yield Vertical(id="screen-body")
         yield Footer()
+
+    async def on_mount(self) -> None:
+        self.register_theme(_DARK_THEME)
+        self.register_theme(_LIGHT_THEME)
+        self.theme = "audio-dark" if self.state.theme == "dark" else "audio-light"
+        await self._mount_screen()
 
     def on_screen_requested(self, message: ScreenRequested) -> None:
         self.navigate_to(message.screen)
@@ -102,23 +106,18 @@ class AudioRestorationTUI(App):
     # Screen management
     # ------------------------------------------------------------------
 
+    async def _mount_screen(self) -> None:
+        body = self.query_one("#screen-body", Vertical)
+        body.remove_children(selector=Vertical)
+        self._screen = SCREEN_FACTORIES[self._active](self.state)
+        await body.mount(self._screen)
+        self.query_one(Sidebar).refresh()
+
     def navigate_to(self, name: str) -> None:
         if name == self._active:
             return
         self._active = name
-        placeholder = self.query_one("#screen-placeholder", Static)
-        placeholder.update(self._screen_for(name))
-        self.query_one(Sidebar).refresh()
-
-    def _screen_for(self, name: str) -> str:
-        return f"[b]{i18n.t(f'nav.{name}')}[/b]\n\n{i18n.t('welcome.tip')}"
-
-    def _welcome_text(self) -> str:
-        return (
-            f"[b]{i18n.t('welcome.title')}[/b]\n\n"
-            f"{i18n.t('welcome.intro')}\n\n"
-            f"{i18n.t('welcome.tip')}"
-        )
+        self.call_after_refresh(self._mount_screen)
 
     # ------------------------------------------------------------------
     # Actions
@@ -142,5 +141,5 @@ class AudioRestorationTUI(App):
 
     def refresh_labels(self) -> None:
         self.query_one(Sidebar).refresh()
-        placeholder = self.query_one("#screen-placeholder", Static)
-        placeholder.update(self._welcome_text())
+        if self._screen is not None:
+            self._screen.refresh_labels()

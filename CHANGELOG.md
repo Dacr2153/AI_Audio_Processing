@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- TUI (Textual sidecar) foundation: bilingual EN/ES shell, custom dark/light
+  themes, sidebar navigation and shared state/profiles/history (Fase 1).
+- TUI Fase 2: interactive Home screen with quick-action buttons and a real
+  screen registry (per-section panels replace the static placeholder).
+
 ### Changed
 - Added `LICENSE` (MIT), raised minimum test coverage to 80 % and added a
   `package_build` CI job that builds and inspects the wheel/sdist.
