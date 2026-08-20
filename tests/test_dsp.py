@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import numpy as np
+import pytest
 
 from audio_restoration.config import MSConfig
 from audio_restoration.dsp import (
@@ -14,6 +17,7 @@ from audio_restoration.dsp import (
     MultibandCompressor,
     WowFlutterCorrector,
 )
+from audio_restoration.exceptions import NeuralModelUnavailableError
 
 
 def test_denoiser_preserves_length_and_shape(noisy_signal, sample_rate):
@@ -33,6 +37,90 @@ def test_denoiser_stereo_preserves_channels(stereo_signal, sample_rate):
     out = Denoiser(method="wavelet").denoise(stereo_signal, sample_rate)
     assert out.ndim == 2
     assert out.shape == stereo_signal.shape
+
+
+def test_denoiser_music_method_runs(noisy_signal, sample_rate):
+    out = Denoiser(method="music", prop_decrease=0.6).denoise(noisy_signal, sample_rate)
+    assert out.shape == noisy_signal.shape
+    assert np.all(np.isfinite(out))
+
+
+def test_denoiser_auto_uses_music(noisy_signal, sample_rate):
+    out = Denoiser(method="auto").denoise(noisy_signal, sample_rate)
+    assert out.shape == noisy_signal.shape
+
+
+def test_denoiser_auto_fallback_to_wavelet(noisy_signal, sample_rate):
+    """If the music path raises, auto must fall back to wavelet."""
+    denoiser = Denoiser(method="auto")
+    with patch.object(denoiser, "_denoise_music", side_effect=RuntimeError("boom")):
+        out = denoiser._denoise_single_pass(noisy_signal, sample_rate)
+    assert out.shape == noisy_signal.shape
+
+
+def test_denoiser_noisereduce_unavailable_raises(noisy_signal, sample_rate):
+    denoiser = Denoiser(method="noisereduce")
+    with (
+        patch("audio_restoration.dsp.denoiser._NOISEREDUCE_AVAILABLE", False),
+        pytest.raises(NeuralModelUnavailableError),
+    ):
+        denoiser._denoise_single_pass(noisy_signal, sample_rate)
+
+
+def test_denoiser_deepfilternet_unavailable_raises(noisy_signal, sample_rate):
+    denoiser = Denoiser(method="deepfilternet")
+    with (
+        patch("audio_restoration.dsp.denoiser._DEEPFILTER_AVAILABLE", False),
+        pytest.raises(NeuralModelUnavailableError),
+    ):
+        denoiser._denoise_single_pass(noisy_signal, sample_rate)
+
+
+def test_denoiser_wavelet_unavailable_raises(noisy_signal, sample_rate):
+    denoiser = Denoiser(method="wavelet")
+    with (
+        patch("audio_restoration.dsp.denoiser._PYWT_AVAILABLE", False),
+        pytest.raises(NeuralModelUnavailableError),
+    ):
+        denoiser._denoise_single_pass(noisy_signal, sample_rate)
+
+
+def test_denoiser_auto_nothing_available_raises(noisy_signal, sample_rate):
+    denoiser = Denoiser(method="auto")
+    with (
+        patch.object(denoiser, "_denoise_music", side_effect=RuntimeError("boom")),
+        patch("audio_restoration.dsp.denoiser._NOISEREDUCE_AVAILABLE", False),
+        patch("audio_restoration.dsp.denoiser._PYWT_AVAILABLE", False),
+        pytest.raises(NeuralModelUnavailableError),
+    ):
+        denoiser._denoise_single_pass(noisy_signal, sample_rate)
+
+
+def test_denoiser_multipass(noisy_signal, sample_rate):
+    out = Denoiser(method="wavelet", passes=3).denoise(noisy_signal, sample_rate)
+    assert out.shape == noisy_signal.shape
+
+
+def test_denoiser_auto_noisereduce_fallback(noisy_signal, sample_rate):
+    denoiser = Denoiser(method="auto")
+    with (
+        patch.object(denoiser, "_denoise_music", side_effect=RuntimeError("boom")),
+        patch("audio_restoration.dsp.denoiser._NOISEREDUCE_AVAILABLE", True),
+        patch.object(
+            denoiser,
+            "_denoise_noisereduce",
+            side_effect=lambda a, sr: a.astype(np.float32),
+        ),
+    ):
+        out = denoiser._denoise_single_pass(noisy_signal, sample_rate)
+    assert out.shape == noisy_signal.shape
+
+
+def test_find_quietest_segment(noisy_signal, sample_rate):
+    denoiser = Denoiser()
+    clip = denoiser._find_quietest_segment(noisy_signal, sample_rate)
+    assert clip.ndim == 1
+    assert len(clip) >= 512
 
 
 def test_declicker_passthrough_on_clean(mono_signal, sample_rate):

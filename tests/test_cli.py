@@ -176,3 +176,62 @@ def test_main_batch_mode(tmp_path, wav_file):
     )
     assert rc == 0
     assert (batch_dir / "restored" / "track.flac").is_file()
+
+
+def test_main_batch_folder_not_found(tmp_path):
+    rc = main(["--batch", str(tmp_path / "nope")])
+    assert rc == 1
+
+
+def test_main_batch_unsupported_output_ext(tmp_path, wav_file):
+    import shutil
+
+    batch_dir = tmp_path / "batch"
+    batch_dir.mkdir()
+    shutil.copy(wav_file, batch_dir / "track.wav")
+    rc = main(["--batch", str(batch_dir), "--output-ext", "xyz"])
+    assert rc == 1
+
+
+def test_main_batch_no_audio_files(tmp_path):
+    batch_dir = tmp_path / "empty"
+    batch_dir.mkdir()
+    rc = main(["--batch", str(batch_dir)])
+    assert rc == 1
+
+
+def test_main_batch_suffix_with_extension(tmp_path, wav_file):
+    import shutil
+
+    batch_dir = tmp_path / "batch"
+    batch_dir.mkdir()
+    shutil.copy(wav_file, batch_dir / "track.wav")
+    out_dir = tmp_path / "out"
+    rc = main(
+        [
+            "--batch",
+            str(batch_dir),
+            "--output-dir",
+            str(out_dir),
+            "--output-suffix",
+            "_restored",
+            "--denoise-method",
+            "wavelet",
+            "--no-plot",
+            "--no-metrics",
+            "--no-lufs",
+        ]
+    )
+    assert rc == 0
+    assert (out_dir / "track_restored.wav").is_file()
+
+
+def test_main_single_file_output_required(tmp_path, wav_file):
+    rc = main(["-i", wav_file])
+    assert rc == 1
+
+
+def test_main_single_file_unsupported_output_format(tmp_path, wav_file):
+    out = str(tmp_path / "out.xyz")
+    rc = main(["-i", wav_file, "-o", out])
+    assert rc == 1
