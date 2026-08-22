@@ -30,9 +30,9 @@ async def test_home_action_buttons_navigate():
         await pilot.press("enter")
         await pilot.pause()
         assert app._active == "batch"
-        from audio_restoration.tui.screens import PlaceholderScreen
+        from audio_restoration.tui.screens.batch import BatchScreen
 
-        assert app.query_one(PlaceholderScreen) is not None
+        assert app.query_one(BatchScreen) is not None
         assert app.query_one(".screen-title", Static).render() == "Batch"
 
 

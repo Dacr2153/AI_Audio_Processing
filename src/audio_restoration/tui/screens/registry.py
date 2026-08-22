@@ -11,6 +11,7 @@ from collections.abc import Callable
 
 from ..state import TuiState
 from .base import TuiScreen
+from .batch import BatchScreen
 from .home import HomeScreen
 from .placeholder import PlaceholderScreen
 from .single import SingleScreen
@@ -29,7 +30,7 @@ def _placeholder(name: str) -> ScreenFactory:
 SCREEN_FACTORIES: dict[str, ScreenFactory] = {
     "home": lambda state: HomeScreen(state),
     "single": lambda state: SingleScreen(state),
-    "batch": _placeholder("batch"),
+    "batch": lambda state: BatchScreen(state),
     "profiles": _placeholder("profiles"),
     "history": _placeholder("history"),
     "about": _placeholder("about"),

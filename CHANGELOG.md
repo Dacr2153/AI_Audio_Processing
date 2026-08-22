@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   screen registry (per-section panels replace the static placeholder).
 - TUI Fase 3: single-file restoration screen with file pickers (DirectoryTree
   modal), pipeline run via async worker, and inline quality-metrics report.
+- TUI Fase 4: batch restoration screen with input/output folder pickers,
+  extension/suffix/workers options, DataTable progress per file and summary.
 
 ### Changed
 - Added `LICENSE` (MIT), raised minimum test coverage to 80 % and added a
