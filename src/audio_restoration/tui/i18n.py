@@ -14,6 +14,14 @@ Language = Literal["en", "es"]
 #: English → Spanish string table.  Only the subset used by the TUI.
 _TRANSLATIONS: dict[str, dict[str, str]] = {
     "es": {
+        # Generic
+        "generic.cancel": "Cancelar",
+        "generic.confirm": "Confirmar",
+        "generic.select_first": "Selecciona un elemento primero",
+        "generic.select_input": "Seleccionar archivo de entrada",
+        "generic.select_output": "Seleccionar archivo de salida",
+        "generic.pick_file": "Elegir Archivo",
+        "error.unsupported_format": "Formato no compatible",
         # Navigation
         "aria.sidebar": "Navegación",
         "nav.home": "Inicio",
@@ -48,10 +56,14 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "proc.cancel_hint": "Pulsa Ctrl+S para detener.",
         # Results
         "results.title": "Resultados",
+        "results.hint": "Procesa un archivo para ver las métricas aquí.",
         "results.metric": "Métrica",
         "results.original": "Original",
         "results.restored": "Restaurado",
         "results.snr": "SNR vs original (dB)",
+        "results.psnr": "PSNR (dB)",
+        "results.original_rms": "RMS original (dB)",
+        "results.restored_rms": "RMS restaurado (dB)",
         "results.save_plot": "Guardar gráfica PNG",
         "results.saved_plot": "Gráfica guardada en",
         # Batch
@@ -134,6 +146,13 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
 
 #: Defaults for every key (English).
 _DEFAULTS: dict[str, str] = {
+    "generic.cancel": "Cancel",
+    "generic.confirm": "Confirm",
+    "generic.select_first": "Select an item first",
+    "generic.select_input": "Select input file",
+    "generic.select_output": "Select output file",
+    "generic.pick_file": "Pick File",
+    "error.unsupported_format": "Unsupported format",
     "aria.sidebar": "Navigation",
     "nav.home": "Home",
     "nav.single": "Single file",
@@ -162,10 +181,14 @@ _DEFAULTS: dict[str, str] = {
     "proc.done": "Completed!",
     "proc.cancel_hint": "Press Ctrl+S to stop.",
     "results.title": "Results",
+    "results.hint": "Process a file to see metrics here.",
     "results.metric": "Metric",
     "results.original": "Original",
     "results.restored": "Restored",
     "results.snr": "SNR vs original (dB)",
+    "results.psnr": "PSNR (dB)",
+    "results.original_rms": "Original RMS (dB)",
+    "results.restored_rms": "Restored RMS (dB)",
     "results.save_plot": "Save PNG plot",
     "results.saved_plot": "Plot saved to",
     "batch.title": "Batch processing",

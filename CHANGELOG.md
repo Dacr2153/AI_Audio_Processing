@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   themes, sidebar navigation and shared state/profiles/history (Fase 1).
 - TUI Fase 2: interactive Home screen with quick-action buttons and a real
   screen registry (per-section panels replace the static placeholder).
+- TUI Fase 3: single-file restoration screen with file pickers (DirectoryTree
+  modal), pipeline run via async worker, and inline quality-metrics report.
 
 ### Changed
 - Added `LICENSE` (MIT), raised minimum test coverage to 80 % and added a

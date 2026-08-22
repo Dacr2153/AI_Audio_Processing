@@ -39,6 +39,20 @@ class TuiScreen(Vertical):
         margin-bottom: 1;
         width: 30;
     }
+    TuiScreen #run-btn {
+        width: 20;
+        margin-right: 1;
+    }
+    TuiScreen #run-hint {
+        height: 3;
+        width: auto;
+        color: $text-muted;
+        align: left middle;
+    }
+    TuiScreen #row-input, TuiScreen #row-output {
+        width: 70;
+        max-width: 100%;
+    }
     """
 
     #: i18n key for the screen title.
