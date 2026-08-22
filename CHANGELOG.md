@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   pipeline-configuration presets.
 - TUI Fase 6: history screen showing past restorations with timestamps, file
   paths and key metrics, plus clear action.
+- TUI Fase 7: about screen with version, neural-dependency status (DeepFilterNet,
+  Demucs, AudioSR) and license information.
 
 ### Changed
 - Added `LICENSE` (MIT), raised minimum test coverage to 80 % and added a

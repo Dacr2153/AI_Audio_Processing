@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from .about import AboutScreen
 from .base import TuiScreen
 from .batch import BatchScreen
 from .history import HistoryScreen
@@ -13,6 +14,7 @@ from .single import SingleScreen
 
 __all__ = [
     "SCREEN_FACTORIES",
+    "AboutScreen",
     "BatchScreen",
     "HistoryScreen",
     "HomeScreen",

@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from ..state import TuiState
+from .about import AboutScreen
 from .base import TuiScreen
 from .batch import BatchScreen
 from .history import HistoryScreen
@@ -35,7 +36,7 @@ SCREEN_FACTORIES: dict[str, ScreenFactory] = {
     "batch": lambda state: BatchScreen(state),
     "profiles": lambda state: ProfilesScreen(state),
     "history": lambda state: HistoryScreen(state),
-    "about": _placeholder("about"),
+    "about": lambda state: AboutScreen(state),
 }
 
 __all__ = ["SCREEN_FACTORIES", "TuiScreen"]
