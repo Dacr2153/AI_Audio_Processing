@@ -35,7 +35,7 @@ class FieldRow(Vertical):
 
     def __init__(
         self,
-        label_key: str,
+        label_key: str | None,
         input_id: str,
         *,
         browse_key: str | None = None,
@@ -51,7 +51,8 @@ class FieldRow(Vertical):
         self.select = select
 
     def compose(self) -> ComposeResult:
-        yield Label(i18n.t(self.label_key))
+        if self.label_key is not None:
+            yield Label(i18n.t(self.label_key))
         with Horizontal():
             if self.select:
                 yield Select([], allow_blank=True, id=self.input_id)
@@ -63,6 +64,7 @@ class FieldRow(Vertical):
                 )
 
     def refresh_labels(self) -> None:
-        self.query_one(Label).update(i18n.t(self.label_key))
+        if self.label_key is not None:
+            self.query_one(Label).update(i18n.t(self.label_key))
         if self.browse_key is not None:
             self.query_one(f"#{self.browse_id}", Button).label = i18n.t(self.browse_key)

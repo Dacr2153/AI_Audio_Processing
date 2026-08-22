@@ -11,7 +11,7 @@ from typing import ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal
+from textual.containers import Horizontal, Vertical
 from textual.widgets import Button, Input, Static
 
 from ...pipeline import RestorationPipeline
@@ -36,6 +36,36 @@ class SingleScreen(TuiScreen):
         Binding("ctrl+r", "run", "Run"),
     ]
 
+    DEFAULT_CSS = """
+    SingleScreen .section-label {
+        text-style: bold;
+        color: $text-secondary;
+        height: 1;
+        margin-bottom: 0;
+    }
+    SingleScreen .file-panel {
+        background: $surface;
+        border: solid $border;
+        padding: 0 1;
+        margin-bottom: 1;
+        height: auto;
+    }
+    SingleScreen .action-row {
+        height: auto;
+        margin-top: 1;
+        margin-bottom: 1;
+    }
+    SingleScreen .action-row Button {
+        margin-right: 1;
+    }
+    SingleScreen .action-hint {
+        color: $text-muted;
+        height: 3;
+        width: auto;
+        align: left middle;
+    }
+    """
+
     def __init__(self, state, **kwargs) -> None:
         super().__init__(state, **kwargs)
         self._busy = False
@@ -43,15 +73,35 @@ class SingleScreen(TuiScreen):
         self._output_path = ""
 
     def form(self) -> ComposeResult:
-        with FieldRow("io.input", "input-path", browse_key="io.browse",
-                       browse_id="browse-input", id="row-input"):
-            pass
-        with FieldRow("io.output", "output-path", browse_key="io.browse",
-                       browse_id="browse-output", id="row-output"):
-            pass
-        with Horizontal():
-            yield Button(i18n.t("config.run_single"), id="run-btn", variant="primary")
-            yield Static(i18n.t("proc.cancel_hint"), id="run-hint")
+        # Input file panel
+        yield Static(i18n.t("io.input"), classes="section-label")
+        with Vertical(classes="file-panel"):
+            yield FieldRow(
+                None, "input-path",
+                browse_key="io.browse", browse_id="browse-input",
+                id="row-input",
+            )
+
+        # Output file panel
+        yield Static(i18n.t("io.output"), classes="section-label")
+        with Vertical(classes="file-panel"):
+            yield FieldRow(
+                None, "output-path",
+                browse_key="io.browse", browse_id="browse-output",
+                id="row-output",
+            )
+
+        # Action row
+        with Horizontal(classes="action-row"):
+            yield Button(
+                i18n.t("config.run_single"),
+                id="run-btn",
+                variant="primary",
+                compact=True,
+            )
+            yield Static(i18n.t("proc.cancel_hint"), classes="action-hint")
+
+        # Results
         yield ResultsPanel(id="results")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -155,4 +205,3 @@ class SingleScreen(TuiScreen):
         self.query_one("#row-output", FieldRow).refresh_labels()
         btn = self.query_one("#run-btn", Button)
         btn.label = i18n.t("proc.title" if self._busy else "config.run_single")
-        self.query_one("#run-hint", Static).update(i18n.t("proc.cancel_hint"))
