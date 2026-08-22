@@ -31,16 +31,6 @@ _DARK_THEME = Theme(
     panel="#11161D",
     boost="#171D25",
     dark=True,
-    variables={
-        "border": "#252D37",
-        "border-active": "#394553",
-        "text-primary": "#D8DEE9",
-        "text-secondary": "#A5AEBB",
-        "text-muted": "#707A88",
-        "surface-active": "#171D25",
-        "surface-hover": "#1C232D",
-        "accent-bright": "#F0B45F",
-    },
 )
 
 _LIGHT_THEME = Theme(
@@ -57,16 +47,6 @@ _LIGHT_THEME = Theme(
     panel="#FFFDF8",
     boost="#E3DDD0",
     dark=False,
-    variables={
-        "border": "#D5CFC4",
-        "border-active": "#B0A898",
-        "text-primary": "#2C2F33",
-        "text-secondary": "#5A5D62",
-        "text-muted": "#8A8D92",
-        "surface-active": "#EDE9E0",
-        "surface-hover": "#E5E1D8",
-        "accent-bright": "#C87520",
-    },
 )
 
 

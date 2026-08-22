@@ -35,20 +35,52 @@ class TuiScreen(Vertical):
         color: $text-muted;
         margin-top: 1;
     }
+
+    /* Button hierarchy */
     TuiScreen Button {
         margin-bottom: 1;
-        width: 30;
-    }
-    TuiScreen #run-btn {
-        width: 20;
-        margin-right: 1;
-    }
-    TuiScreen #run-hint {
+        min-width: 14;
         height: 3;
-        width: auto;
-        color: $text-muted;
-        align: left middle;
     }
+    TuiScreen Button.primary {
+        background: $accent;
+        color: $background;
+        text-style: bold;
+        border: none;
+        min-width: 20;
+    }
+    TuiScreen Button.default {
+        background: $surface-active;
+        color: $text-primary;
+        border: solid $border;
+    }
+    TuiScreen Button.flat {
+        background: transparent;
+        color: $text-secondary;
+        border: none;
+    }
+
+    /* Inputs */
+    TuiScreen Input {
+        background: $surface;
+        border: solid $border;
+        color: $text-primary;
+        padding: 0 1;
+        height: 3;
+    }
+    TuiScreen Input:focus {
+        border: solid $accent;
+    }
+
+    /* Panels */
+    TuiScreen .panel {
+        background: $surface;
+        border: solid $border;
+        padding: 1 2;
+        margin-bottom: 1;
+    }
+
+    /* Field row widths */
     TuiScreen #row-input, TuiScreen #row-output {
         width: 70;
         max-width: 100%;

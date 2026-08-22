@@ -25,10 +25,10 @@ class ResultsPanel(Vertical):
 
     DEFAULT_CSS = """
     ResultsPanel {
-        border: round $success 50%;
-        padding: 1 2;
-        margin-top: 1;
         background: $surface;
+        border: solid $border;
+        padding: 1 2;
+        margin-top: 2;
         height: auto;
         width: 60;
         max-width: 100%;

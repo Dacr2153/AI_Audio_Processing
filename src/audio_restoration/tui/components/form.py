@@ -14,11 +14,12 @@ class FieldRow(Vertical):
 
     DEFAULT_CSS = """
     FieldRow {
-        margin-bottom: 1;
+        margin-bottom: 2;
     }
     FieldRow Label {
-        color: $text-muted;
+        color: $text-secondary;
         margin-bottom: 0;
+        height: 1;
     }
     FieldRow Horizontal {
         height: auto;
