@@ -103,6 +103,13 @@ class SingleScreen(TuiScreen):
         if inp.suffix.lower() not in _AUDIO_EXTENSIONS:
             self.notify(i18n.t("error.unsupported_format"), severity="error")
             return
+        out = Path(self._output_path)
+        if out.is_dir():
+            ext = self.state.output_ext or inp.suffix.lstrip(".")
+            suffix = self.state.output_suffix
+            out = out / f"{inp.stem}{suffix}.{ext}"
+            self._output_path = str(out)
+            self.query_one("#output-path", Input).value = self._output_path
         self._busy = True
         btn = self.query_one("#run-btn", Button)
         btn.disabled = True
