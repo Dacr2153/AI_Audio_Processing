@@ -12,7 +12,7 @@ from typing import ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal
+from textual.containers import Horizontal, Vertical
 from textual.widgets import Button, DataTable, Input, Select, Static
 from textual.widgets._data_table import Coordinate
 
@@ -34,6 +34,50 @@ class BatchScreen(TuiScreen):
     ]
 
     DEFAULT_CSS = """
+    BatchScreen .section-label {
+        text-style: bold;
+        color: $text-secondary;
+        height: 1;
+        margin-bottom: 0;
+    }
+    BatchScreen .file-panel {
+        background: $surface;
+        border: solid $border;
+        padding: 0 1;
+        margin-bottom: 1;
+        height: auto;
+    }
+    BatchScreen .options-panel {
+        background: $surface;
+        border: solid $border;
+        padding: 0 1;
+        margin-bottom: 1;
+        height: auto;
+    }
+    BatchScreen .options-panel Horizontal {
+        height: auto;
+    }
+    BatchScreen .options-panel FieldRow {
+        width: 1fr;
+        margin-right: 1;
+    }
+    BatchScreen Select {
+        width: 18;
+    }
+    BatchScreen .action-row {
+        height: auto;
+        margin-top: 1;
+        margin-bottom: 1;
+    }
+    BatchScreen .action-row Button {
+        margin-right: 1;
+    }
+    BatchScreen .action-hint {
+        color: $text-muted;
+        height: 3;
+        width: auto;
+        align: left middle;
+    }
     BatchScreen #batch-table {
         height: 1fr;
         margin-top: 1;
@@ -43,22 +87,7 @@ class BatchScreen(TuiScreen):
         margin-top: 1;
         padding: 1 2;
         background: $surface;
-        border: round $success 50%;
-    }
-    BatchScreen #batch-controls {
-        height: auto;
-        margin-top: 1;
-    }
-    BatchScreen #batch-folder-row,
-    BatchScreen #batch-output-row {
-        width: 70;
-        max-width: 100%;
-    }
-    BatchScreen Select {
-        width: 18;
-    }
-    BatchScreen #workers-row {
-        width: 30;
+        border: solid $border;
     }
     """
 
@@ -70,34 +99,51 @@ class BatchScreen(TuiScreen):
         self._failed = 0
 
     def form(self) -> ComposeResult:
-        with FieldRow(
-            "batch.folder", "batch-folder",
-            browse_key="io.browse", browse_id="browse-batch-folder",
-            id="batch-folder-row",
-        ):
-            pass
-        with FieldRow(
-            "batch.output_dir", "batch-output-dir",
-            browse_key="io.browse", browse_id="browse-batch-output",
-            id="batch-output-row",
-        ):
-            pass
-        with Horizontal(id="batch-options"):
+        # Folder pickers
+        yield Static(i18n.t("batch.folder"), classes="section-label")
+        with Vertical(classes="file-panel"):
             yield FieldRow(
-                "batch.ext", "batch-ext",
-                select=True, id="batch-ext-row",
+                None, "batch-folder",
+                browse_key="io.browse", browse_id="browse-batch-folder",
+                id="batch-folder-row",
             )
+
+        yield Static(i18n.t("batch.output_dir"), classes="section-label")
+        with Vertical(classes="file-panel"):
             yield FieldRow(
-                "batch.suffix", "batch-suffix", id="batch-suffix-row",
+                None, "batch-output-dir",
+                browse_key="io.browse", browse_id="browse-batch-output",
+                id="batch-output-row",
             )
-            yield FieldRow(
-                "batch.workers", "batch-workers",
-                select=True, id="batch-workers-row",
+
+        # Options panel
+        yield Static("OPTIONS", classes="section-label")
+        with Vertical(classes="options-panel"):
+            with Horizontal():
+                yield FieldRow(
+                    "batch.ext", "batch-ext",
+                    select=True, id="batch-ext-row",
+                )
+                yield FieldRow(
+                    "batch.suffix", "batch-suffix", id="batch-suffix-row",
+                )
+                yield FieldRow(
+                    "batch.workers", "batch-workers",
+                    select=True, id="batch-workers-row",
+                )
+
+        # Action row
+        with Horizontal(classes="action-row"):
+            yield Button(
+                i18n.t("batch.start"),
+                id="batch-start-btn",
+                variant="primary",
+                compact=True,
             )
-        with Horizontal(id="batch-controls"):
-            yield Button(i18n.t("batch.start"), id="batch-start-btn", variant="primary")
-            yield Static(i18n.t("proc.cancel_hint"), id="batch-hint")
-        yield DataTable(id="batch-table")
+            yield Static(i18n.t("proc.cancel_hint"), classes="action-hint")
+
+        # Progress table
+        yield DataTable(id="batch-table", zebra_stripes=True)
         yield Static("", id="batch-summary")
 
     def on_mount(self) -> None:
@@ -256,4 +302,3 @@ class BatchScreen(TuiScreen):
         self.query_one("#batch-workers-row", FieldRow).refresh_labels()
         btn = self.query_one("#batch-start-btn", Button)
         btn.label = i18n.t("proc.title" if self._busy else "batch.start")
-        self.query_one("#batch-hint", Static).update(i18n.t("proc.cancel_hint"))
