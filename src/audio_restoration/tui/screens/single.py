@@ -96,6 +96,13 @@ class SingleScreen(TuiScreen):
         if not self._output_path:
             self.notify(i18n.t("io.output"), severity="error")
             return
+        inp = Path(self._input_path)
+        if not inp.is_file():
+            self.notify(i18n.t("error.not_found"), severity="error")
+            return
+        if inp.suffix.lower() not in _AUDIO_EXTENSIONS:
+            self.notify(i18n.t("error.unsupported_format"), severity="error")
+            return
         self._busy = True
         btn = self.query_one("#run-btn", Button)
         btn.disabled = True

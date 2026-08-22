@@ -67,7 +67,7 @@ async def test_run_without_input_shows_error():
 
 
 @pytest.mark.asyncio
-async def test_run_with_mocked_pipeline(monkeypatch: MonkeyPatch):
+async def test_run_with_mocked_pipeline(monkeypatch: MonkeyPatch, tmp_path):
     import audio_restoration.tui.screens.single as single_mod
 
     calls: list[tuple[str, str]] = []
@@ -83,17 +83,21 @@ async def test_run_with_mocked_pipeline(monkeypatch: MonkeyPatch):
 
     monkeypatch.setattr(single_mod, "RestorationPipeline", FakePipeline)
 
+    in_file = tmp_path / "a.wav"
+    in_file.write_bytes(b"fake")
+    out_file = tmp_path / "out.wav"
+
     app = AudioRestorationTUI()
     async with app.run_test() as pilot:
         app.navigate_to("single")
         await pilot.pause(0.3)
-        app.query_one("#input-path", Input).value = "a.wav"
-        app.query_one("#output-path", Input).value = "out.wav"
+        app.query_one("#input-path", Input).value = str(in_file)
+        app.query_one("#output-path", Input).value = str(out_file)
         app.query_one("#run-btn", Button).focus()
         await pilot.pause()
         await pilot.press("enter")
         await pilot.pause(0.5)
-        assert calls == [("a.wav", "out.wav")]
+        assert calls == [(str(in_file), str(out_file))]
         results = app.query_one("#results", ResultsPanel)
         assert results._report is not None
         assert results._report["snr_db"] == 12.3
