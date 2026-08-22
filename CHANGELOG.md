@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   extension/suffix/workers options, DataTable progress per file and summary.
 - TUI Fase 5: profiles management screen with list/load/delete/save
   pipeline-configuration presets.
+- TUI Fase 6: history screen showing past restorations with timestamps, file
+  paths and key metrics, plus clear action.
 
 ### Changed
 - Added `LICENSE` (MIT), raised minimum test coverage to 80 % and added a
