@@ -11,6 +11,7 @@ from textual.theme import Theme
 from textual.widgets import Footer
 
 from . import i18n
+from .components.footer import CommandBar
 from .components.sidebar import ScreenRequested, Sidebar
 from .screens import SCREEN_FACTORIES
 from .screens.base import TuiScreen
@@ -81,8 +82,8 @@ class AudioRestorationTUI(App):
     Sidebar {
         width: 24;
         dock: left;
-        background: $panel;
-        border-right: solid $background-lighten-1;
+        background: $surface;
+        border-right: solid $border;
     }
 
     #content {
@@ -111,6 +112,7 @@ class AudioRestorationTUI(App):
         yield Sidebar()
         with VerticalScroll(id="content"):
             yield Vertical(id="screen-body")
+        yield CommandBar(id="command-bar")
         yield Footer()
 
     async def on_mount(self) -> None:
@@ -131,7 +133,7 @@ class AudioRestorationTUI(App):
         body.remove_children(selector=Vertical)
         self._screen = SCREEN_FACTORIES[self._active](self.state)
         await body.mount(self._screen)
-        self.query_one(Sidebar).refresh()
+        self.query_one(Sidebar).set_active(self._active)
 
     def navigate_to(self, name: str) -> None:
         if name == self._active:
