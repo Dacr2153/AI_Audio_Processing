@@ -118,19 +118,18 @@ class BatchScreen(TuiScreen):
 
         # Options panel
         yield Static("OPTIONS", classes="section-label")
-        with Vertical(classes="options-panel"):
-            with Horizontal():
-                yield FieldRow(
-                    "batch.ext", "batch-ext",
-                    select=True, id="batch-ext-row",
-                )
-                yield FieldRow(
-                    "batch.suffix", "batch-suffix", id="batch-suffix-row",
-                )
-                yield FieldRow(
-                    "batch.workers", "batch-workers",
-                    select=True, id="batch-workers-row",
-                )
+        with Vertical(classes="options-panel"), Horizontal():
+            yield FieldRow(
+                "batch.ext", "batch-ext",
+                select=True, id="batch-ext-row",
+            )
+            yield FieldRow(
+                "batch.suffix", "batch-suffix", id="batch-suffix-row",
+            )
+            yield FieldRow(
+                "batch.workers", "batch-workers",
+                select=True, id="batch-workers-row",
+            )
 
         # Action row
         with Horizontal(classes="action-row"):

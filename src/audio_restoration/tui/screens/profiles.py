@@ -9,7 +9,7 @@ from typing import ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal
+from textual.containers import Horizontal, Vertical
 from textual.widgets import Button, DataTable, Input, Static
 from textual.widgets._data_table import Coordinate
 
@@ -28,6 +28,12 @@ class ProfilesScreen(TuiScreen):
     ]
 
     DEFAULT_CSS = """
+    ProfilesScreen .section-label {
+        text-style: bold;
+        color: $text-secondary;
+        height: 1;
+        margin-bottom: 0;
+    }
     ProfilesScreen #profiles-table {
         height: 1fr;
         margin-top: 1;
@@ -37,12 +43,17 @@ class ProfilesScreen(TuiScreen):
         margin-top: 2;
         height: auto;
     }
-    ProfilesScreen #save-section {
-        height: auto;
+    ProfilesScreen .save-panel {
+        background: $surface;
+        border: solid $border;
+        padding: 0 1;
         margin-top: 1;
+        height: auto;
     }
-    ProfilesScreen #save-section Button {
-        width: 16;
+    ProfilesScreen .save-panel Horizontal {
+        height: auto;
+    }
+    ProfilesScreen .save-panel Button {
         margin: 0 0 0 1;
     }
     """
@@ -51,14 +62,21 @@ class ProfilesScreen(TuiScreen):
         super().__init__(state, **kwargs)
 
     def form(self) -> ComposeResult:
-        yield DataTable(id="profiles-table")
+        yield DataTable(id="profiles-table", zebra_stripes=True)
         yield Static(i18n.t("profiles.none"), id="profiles-empty")
-        with Horizontal(id="save-section"):
-            yield FieldRow(
-                "config.profile_name", "profile-name",
-                id="profile-name-row",
-            )
-            yield Button(i18n.t("config.save_profile"), id="save-btn", variant="primary")
+        with Vertical(classes="save-panel"):
+            yield Static(i18n.t("config.save_profile"), classes="section-label")
+            with Horizontal():
+                yield FieldRow(
+                    None, "profile-name",
+                    id="profile-name-row",
+                )
+                yield Button(
+                    i18n.t("config.save_profile"),
+                    id="save-btn",
+                    variant="primary",
+                    compact=True,
+                )
 
     def on_mount(self) -> None:
         table = self.query_one("#profiles-table", DataTable)

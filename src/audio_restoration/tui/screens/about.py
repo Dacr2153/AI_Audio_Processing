@@ -23,19 +23,64 @@ class AboutScreen(TuiScreen):
 
     TITLE_KEY = "nav.about"
 
+    DEFAULT_CSS = """
+    AboutScreen .section-label {
+        text-style: bold;
+        color: $text-secondary;
+        height: 1;
+        margin-bottom: 0;
+    }
+    AboutScreen .version-panel {
+        background: $surface;
+        border: solid $border;
+        padding: 1 2;
+        margin-bottom: 1;
+        height: auto;
+    }
+    AboutScreen .deps-panel {
+        background: $surface;
+        border: solid $border;
+        padding: 0 1;
+        margin-bottom: 1;
+        height: auto;
+    }
+    AboutScreen .deps-panel Static {
+        height: 1;
+    }
+    AboutScreen .license-panel {
+        background: $surface;
+        border: solid $border;
+        padding: 0 1;
+        margin-bottom: 1;
+        height: auto;
+    }
+    AboutScreen .repo-panel {
+        background: $surface;
+        border: solid $border;
+        padding: 0 1;
+        height: auto;
+    }
+    """
+
     def form(self) -> ComposeResult:
-        yield Static(f"{i18n.t('about.version')}: {__version__}", id="about-version")
-        with Vertical(id="about-deps-section"):
-            yield Static(i18n.t("about.deps"), classes="screen-title")
+        with Vertical(classes="version-panel"):
+            yield Static(
+                f"{i18n.t('about.version')}: {__version__}",
+                id="about-version",
+            )
+        with Vertical(classes="deps-panel"):
+            yield Static(i18n.t("about.deps"), classes="section-label")
             yield Static(self._dep_line("DeepFilterNet", deepfilternet_available()),
                          id="about-deepfilter")
             yield Static(self._dep_line("Demucs", SourceSeparator().is_available),
                          id="about-demucs")
             yield Static(self._dep_line("AudioSR", SuperResolution().is_audiosr_available),
                          id="about-audiosr")
-        yield Static(i18n.t("about.license"), id="about-license")
-        yield Static("https://github.com/Dacr2153/AI_Audio_Processing",
-                     id="about-repo")
+        with Vertical(classes="license-panel"):
+            yield Static(i18n.t("about.license"), id="about-license")
+        with Vertical(classes="repo-panel"):
+            yield Static("https://github.com/Dacr2153/AI_Audio_Processing",
+                         id="about-repo")
 
     @staticmethod
     def _dep_line(name: str, ok: bool) -> str:

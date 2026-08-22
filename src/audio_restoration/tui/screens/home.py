@@ -96,7 +96,7 @@ class HomeScreen(TuiScreen):
         container = self.query_one("#recent-list", Vertical)
         try:
             container.remove_children()
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001, S110
             pass
         entries = self.state.load_history()[:5]
         if not entries:
@@ -111,7 +111,6 @@ class HomeScreen(TuiScreen):
             name = entry.get("input", "").split("/")[-1]
             ts = entry.get("timestamp", "")
             short_ts = ts[:10] if len(ts) >= 10 else ts
-            status_key = "dashboard.status_restored"
             container.mount(
                 Static(f"● {name}  {short_ts}", classes="recent-item")
             )
@@ -120,7 +119,7 @@ class HomeScreen(TuiScreen):
         container = self.query_one("#profile-section", Vertical)
         try:
             container.remove_children()
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001, S110
             pass
         cfg = self.state.config
         rows = [

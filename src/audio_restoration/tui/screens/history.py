@@ -27,6 +27,12 @@ class HistoryScreen(TuiScreen):
     ]
 
     DEFAULT_CSS = """
+    HistoryScreen .section-label {
+        text-style: bold;
+        color: $text-secondary;
+        height: 1;
+        margin-bottom: 0;
+    }
     HistoryScreen #history-table {
         height: 1fr;
         margin-top: 1;
@@ -36,17 +42,32 @@ class HistoryScreen(TuiScreen):
         margin-top: 2;
         height: auto;
     }
-    HistoryScreen #history-controls {
+    HistoryScreen .action-row {
         height: auto;
         margin-top: 1;
+    }
+    HistoryScreen .action-row Button {
+        margin-right: 1;
+    }
+    HistoryScreen .action-hint {
+        color: $text-muted;
+        height: 3;
+        width: auto;
+        align: left middle;
     }
     """
 
     def form(self) -> ComposeResult:
-        yield DataTable(id="history-table")
+        yield DataTable(id="history-table", zebra_stripes=True)
         yield Static(i18n.t("history.none"), id="history-empty")
-        with Horizontal(id="history-controls"):
-            yield Button(i18n.t("history.clear"), id="clear-btn", variant="warning")
+        with Horizontal(classes="action-row"):
+            yield Button(
+                i18n.t("history.clear"),
+                id="clear-btn",
+                variant="error",
+                compact=True,
+            )
+            yield Static(i18n.t("proc.cancel_hint"), classes="action-hint")
 
     def on_mount(self) -> None:
         table = self.query_one("#history-table", DataTable)
