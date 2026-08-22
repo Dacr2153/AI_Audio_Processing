@@ -24,6 +24,7 @@
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [TUI (Terminal User Interface)](#tui-terminal-user-interface)
 - [Command-Line Interface](#command-line-interface)
 - [Processing Pipeline](#processing-pipeline)
 - [Genre Presets](#genre-presets)
@@ -124,6 +125,50 @@ recording if you don't have one) lives in `examples/api_demo.py`:
 python examples/api_demo.py                 # uses a generated demo input
 python examples/api_demo.py old.wav -o new.wav
 ```
+
+---
+
+## TUI (Terminal User Interface)
+
+Launch the interactive Textual-based TUI:
+
+```bash
+audio-restore-tui
+# or
+python -m audio_restoration.tui
+```
+
+**Installation** (requires the `tui` extra):
+
+```bash
+pip install -e ".[tui]"
+# or during setup:
+bash setup.sh --dev
+```
+
+**Features:**
+
+| Screen    | Description |
+|-----------|-------------|
+| Home      | Quick-action buttons to jump to any section |
+| Single    | Pick input/output files, run restoration, view quality metrics (SNR, PSNR, RMS) |
+| Batch     | Process an entire folder with extension/suffix/workers options and a progress table |
+| Profiles  | Save, load, delete and manage pipeline-configuration presets |
+| History   | Browse past restorations with timestamps, file paths and key metrics |
+| About     | Version info, neural-dependency status (DeepFilterNet, Demucs, AudioSR) and license |
+
+**Keyboard shortcuts:**
+
+| Key       | Action |
+|-----------|--------|
+| `L`       | Toggle language (EN / ES) |
+| `D`       | Toggle theme (audio-dark / audio-light) |
+| `Ctrl+R`  | Run single restoration (Single screen) |
+| `Ctrl+C`  | Cancel batch (Batch screen) |
+| `Ctrl+S`  | Save profile (Profiles screen) |
+| `Ctrl+X`  | Clear history (History screen) |
+| `H`       | Go to Home |
+| `1` / `2` / ... | Jump to sidebar sections |
 
 ---
 
@@ -286,10 +331,30 @@ src/audio_restoration/
 │   ├── devices.py             # device resolution (auto/cpu/cuda)
 │   ├── source_separation.py   # Demucs stems
 │   └── super_resolution.py    # AudioSR (CLI) / scipy upsampling
-└── reporting/
-    ├── batch_report.py        # per-file CSV summaries (pandas, optional)
-    └── metrics.py             # SNR / PSNR / RMS / centroid / HF ratio + plots
-tests/                         # 78 pytest tests (unit + small integration)
+├── reporting/
+│   ├── batch_report.py        # per-file CSV summaries (pandas, optional)
+│   └── metrics.py             # SNR / PSNR / RMS / centroid / HF ratio + plots
+└── tui/
+    ├── __main__.py            # audio-restore-tui entry point
+    ├── app.py                 # Textual App, navigation, themes
+    ├── i18n.py                # bilingual EN/ES string table
+    ├── state.py               # shared TuiState (config, profiles, history)
+    ├── config_serde.py        # PipelineConfig ↔ flat-dict serialization
+    ├── components/
+    │   ├── sidebar.py         # left nav rail
+    │   ├── form.py            # FieldRow (labelled input/select)
+    │   ├── file_picker.py     # DirectoryTree modal screen
+    │   └── results.py         # ResultsPanel (metrics display)
+    └── screens/
+        ├── base.py            # TuiScreen base class
+        ├── registry.py        # SCREEN_FACTORIES mapping
+        ├── home.py            # welcome + quick actions
+        ├── single.py          # single-file restoration
+        ├── batch.py           # batch folder restoration
+        ├── profiles.py        # profile CRUD
+        ├── history.py         # past jobs browser
+        └── about.py           # version + deps + license
+tests/                         # 188 pytest tests (unit + TUI headless)
 setup.sh                       # defensive, idempotent environment setup
 pyproject.toml                 # packaging, extras, tool config (single source)
 ```
@@ -311,6 +376,7 @@ cfg = PipelineConfig(denoise_method="auto", bass_gain_db=3.0)  # still works
 | Extra        | Provides                          | Requirements        |
 |--------------|-----------------------------------|---------------------|
 | (none)       | Core DSP pipeline                 | none                |
+| `tui`        | Textual-based terminal UI        | —                   |
 | `neural`     | torch, DeepFilterNet, Demucs      | —                   |
 | `audiosr`    | diffusion super-resolution        | Python <= 3.10 only |
 | `dev`        | pytest, ruff, mypy, build, pandas | —                   |
