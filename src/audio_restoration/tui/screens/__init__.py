@@ -6,6 +6,7 @@ from .base import TuiScreen
 from .batch import BatchScreen
 from .home import HomeScreen
 from .placeholder import PlaceholderScreen
+from .profiles import ProfilesScreen
 from .registry import SCREEN_FACTORIES
 from .single import SingleScreen
 
@@ -14,6 +15,7 @@ __all__ = [
     "BatchScreen",
     "HomeScreen",
     "PlaceholderScreen",
+    "ProfilesScreen",
     "SingleScreen",
     "TuiScreen",
 ]

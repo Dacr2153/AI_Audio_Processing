@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   modal), pipeline run via async worker, and inline quality-metrics report.
 - TUI Fase 4: batch restoration screen with input/output folder pickers,
   extension/suffix/workers options, DataTable progress per file and summary.
+- TUI Fase 5: profiles management screen with list/load/delete/save
+  pipeline-configuration presets.
 
 ### Changed
 - Added `LICENSE` (MIT), raised minimum test coverage to 80 % and added a

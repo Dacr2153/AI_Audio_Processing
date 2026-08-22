@@ -14,6 +14,7 @@ from .base import TuiScreen
 from .batch import BatchScreen
 from .home import HomeScreen
 from .placeholder import PlaceholderScreen
+from .profiles import ProfilesScreen
 from .single import SingleScreen
 
 ScreenFactory = Callable[[TuiState], TuiScreen]
@@ -31,7 +32,7 @@ SCREEN_FACTORIES: dict[str, ScreenFactory] = {
     "home": lambda state: HomeScreen(state),
     "single": lambda state: SingleScreen(state),
     "batch": lambda state: BatchScreen(state),
-    "profiles": _placeholder("profiles"),
+    "profiles": lambda state: ProfilesScreen(state),
     "history": _placeholder("history"),
     "about": _placeholder("about"),
 }
